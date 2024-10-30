@@ -64,4 +64,29 @@ async function authorize() {
   }
   return client;
 }
+/**
+ * Lists the first 10 users in the domain.
+ *
+ * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
+ */
+async function listUsers(auth) {
+  const service = google.admin({version: 'directory_v1', auth});
+  const res = await service.users.list({
+    customer: 'C03s800rk',
+    maxResults: 10,
+    orderBy: 'email',
+  });
 
+  const users = res.data.users;
+  if (!users || users.length === 0) {
+    console.log('No users found.');
+    return;
+  }
+
+  console.log('Users:');
+  users.forEach((user) => {
+    console.log(`${user.primaryEmail} (${user.name.fullName})`);
+  });
+}
+
+authorize().then(listUsers).catch(console.error);
